@@ -1,0 +1,141 @@
+@import '@fontsource-variable/geist/index.css';
+@import '@fontsource-variable/geist-mono/index.css';
+@import './tokens.css';
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  font-feature-settings: 'liga', 'kern';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior: none;
+  /* iOS: previne ajuste automático do tamanho do texto em orientação */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100svh; /* small viewport para iOS Safari */
+  background: var(--bg);
+  /* notch / safe area */
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Touch targets confortáveis em mobile: inputs ≥ 16px evita zoom no iOS */
+@media (max-width: 760px) {
+  input[type='text'],
+  input[type='number'],
+  input[type='date'],
+  input[type='file'],
+  textarea {
+    font-size: 16px;
+  }
+}
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+input, textarea {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: none;
+  outline: none;
+}
+
+textarea {
+  resize: none;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: var(--tracking-tight);
+  margin: 0;
+}
+
+p { margin: 0; }
+
+a {
+  color: var(--accent-deep);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--rule);
+  margin: var(--space-5) 0;
+}
+
+/* utilitárias */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: var(--tracking-uppercase);
+  text-transform: uppercase;
+  color: var(--fg-faint);
+}
+
+.serif-italic {
+  font-family: var(--font-body);
+  font-style: italic;
+  font-weight: 500;
+}
+
+.hairline {
+  border-top: 1px solid var(--rule);
+}
+
+.ornament {
+  font-family: var(--font-display);
+  font-style: italic;
+  color: var(--fg-faint);
+  letter-spacing: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

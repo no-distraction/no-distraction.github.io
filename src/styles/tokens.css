@@ -1,0 +1,89 @@
+/*
+ * Design tokens — paleta neutra com acentos sage/terra/honey/bloom.
+ * Tipografia única (Geist) usada com pesos diferentes para hierarquia.
+ */
+
+:root {
+  /* —— PALETA LIGHT (cream paper · ink) —— */
+  --paper:           #F4EEE0;
+  --paper-deep:      #ECE4D2;
+  --paper-edge:      #E2D8C2;
+  --ink:             #1A1714;
+  --ink-soft:        #3D362E;
+  --ink-faint:       #6B6256;
+  --ink-ghost:       #A9A091;
+  --sage:            #5E7251;
+  --sage-deep:       #3F4E35;
+  --terra:           #B5533C;
+  --honey:           #C49B3B;
+  --bloom:           #C26F8B;
+  --rule:            rgba(26, 23, 20, 0.12);
+  --rule-soft:       rgba(26, 23, 20, 0.06);
+  --shadow-paper:    0 1px 0 rgba(26, 23, 20, 0.04), 0 12px 32px -16px rgba(26, 23, 20, 0.18);
+  --shadow-press:    inset 0 1px 0 rgba(26, 23, 20, 0.08);
+
+  /* aliases semânticos */
+  --bg:              var(--paper);
+  --bg-elev:         var(--paper-deep);
+  --bg-sunk:         var(--paper-edge);
+  --fg:              var(--ink);
+  --fg-soft:         var(--ink-soft);
+  --fg-faint:        var(--ink-faint);
+  --fg-ghost:        var(--ink-ghost);
+  --accent:          var(--sage);
+  --accent-deep:     var(--sage-deep);
+  --danger:          var(--terra);
+  --highlight:       var(--honey);
+
+  /* tipografia — Geist é uma fonte sans-serif moderna, geométrica e otimizada
+     para telas; usamos a mesma family para títulos e corpo, variando o peso. */
+  --font-display: 'Geist Variable', 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-body:    'Geist Variable', 'Geist', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono:    'Geist Mono Variable', 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --tracking-tight:  -0.018em;
+  --tracking-normal: 0;
+  --tracking-wide:   0.08em;
+  --tracking-uppercase: 0.18em;
+
+  /* sizing & rhythm */
+  --r-1: 2px;
+  --r-2: 4px;
+  --r-3: 8px;
+  --r-4: 14px;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+}
+
+[data-theme='dark'] {
+  --paper:           #0D0E10;
+  --paper-deep:      #15171A;
+  --paper-edge:      #1C1F23;
+  --ink:             #E6E8EC;
+  --ink-soft:        #B7BBC2;
+  --ink-faint:       #7E8389;
+  --ink-ghost:       #4F5358;
+  --sage:            #8FA67E;
+  --sage-deep:       #AEC198;
+  --terra:           #D58264;
+  --honey:           #D9B65A;
+  --bloom:           #D58FA8;
+  --rule:            rgba(230, 232, 236, 0.10);
+  --rule-soft:       rgba(230, 232, 236, 0.05);
+  --shadow-paper:    0 1px 0 rgba(0,0,0,0.6), 0 18px 40px -18px rgba(0,0,0,0.7);
+  --shadow-press:    inset 0 1px 0 rgba(0, 0, 0, 0.6);
+}
+
+/* respeita preferência do sistema na primeira pintura — sobrescrito por JS depois */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+  }
+}

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#1A1A1A" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#F5F0E6" media="(prefers-color-scheme: light)" />
+    <meta name="description" content="App de produtividade 100% offline: calendário, tarefas, notas, pomodoro, hidratação." />
+    <meta name="color-scheme" content="light dark" />
+
+    <!-- Segurança: defesa em profundidade via meta. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self'; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'" />
+    <meta name="referrer" content="no-referrer" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), interest-cohort=()" />
+
+    <title>no-distraction app</title>
+    <link rel="icon" type="image/png" href="./icons/panda.png" />
+    <link rel="apple-touch-icon" href="./icons/panda.png" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
