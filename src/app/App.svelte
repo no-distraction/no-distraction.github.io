@@ -237,7 +237,10 @@
     top: calc(58px + var(--space-3));
     height: calc(100vh - 58px - var(--space-3) * 2);
     display: grid;
-    grid-template-rows: 6fr 4fr;
+    /* O Calendário tem prioridade de legibilidade: piso de ~230px pra as
+       semanas nunca esmagarem. O Pomodoro cede a altura — o disco encolhe
+       (e o número junto, via container query no .time) conforme aperta. */
+    grid-template-rows: minmax(0, 6fr) minmax(230px, 4fr);
     gap: var(--space-5);
     min-height: 0;
   }

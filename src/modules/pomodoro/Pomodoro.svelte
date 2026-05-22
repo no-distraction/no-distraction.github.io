@@ -219,14 +219,23 @@
 
 <style>
   .dial {
+    /* Base (mobile/tablet): o painel cresce com o conteúdo, então o disco
+       é dimensionado pela largura e mantém o tamanho cheio. O modo "encolher
+       por altura" fica restrito ao desktop (ver @media min-width: 1101px),
+       onde a coluna da direita tem altura travada. */
     position: relative;
     width: 100%;
-    aspect-ratio: 1 / 1;
     max-width: 240px;
+    aspect-ratio: 1 / 1;
+    align-self: center;
     margin: var(--space-2) auto var(--space-3);
     display: flex;
     align-items: center;
     justify-content: center;
+    /* O disco é o container de referência do relógio: o número e a fase
+       escalam pelo seu tamanho (cqmin), então encolhem junto quando a
+       altura aperta, em vez de estourar/sumir. */
+    container-type: size;
   }
   .dial svg {
     position: absolute; inset: 0;
@@ -239,7 +248,8 @@
   }
   .time {
     font-family: var(--font-mono);
-    font-size: 44px;
+    /* ~18.5% do menor lado do disco, limitado entre 18px e 44px */
+    font-size: clamp(18px, 18.5cqmin, 44px);
     font-weight: 500;
     letter-spacing: -0.02em;
     color: var(--fg);
@@ -250,7 +260,7 @@
     margin-top: 6px;
     font-family: var(--font-display);
     font-style: italic;
-    font-size: 14px;
+    font-size: clamp(10px, 6cqmin, 14px);
     color: var(--fg-faint);
     letter-spacing: 0.04em;
   }
@@ -262,10 +272,28 @@
     gap: var(--space-2);
     justify-content: center;
     flex-wrap: wrap;
+    /* os botões mantêm sua altura mesmo quando o painel fica curto */
+    flex-shrink: 0;
   }
 
   @media (max-width: 600px) {
     .dial { max-width: 200px; }
     .time { font-size: 38px; }
+  }
+
+  /* Só na coluna fixa do desktop o painel tem altura travada
+     (.right-fixed: height: calc(100vh ...) + overflow: hidden). Aí o disco
+     passa a flexionar pela altura e encolher conforme o painel aperta, pra
+     nunca empurrar os controles pra fora da área recortada. min-*: 0 removem
+     o piso de tamanho do conteúdo; a largura segue da altura via aspect-ratio. */
+  @media (min-width: 1101px) {
+    .dial {
+      flex: 1 1 auto;
+      width: auto;
+      max-width: none;
+      min-height: 0;
+      min-width: 0;
+      max-height: 240px;
+    }
   }
 </style>
