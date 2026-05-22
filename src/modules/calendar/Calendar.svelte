@@ -9,15 +9,30 @@
 
   let today = $state(todayKey());
 
-  // Mantém o mês visível em sincronia com a data selecionada (se o usuário
-  // andar com ← → para outro mês, o calendário acompanha).
+  // Mantém `today` sempre atualizado: ao voltar de background, ao ganhar
+  // foco, e periodicamente (cobre virada de meia-noite com o app aberto).
+  $effect(() => {
+    const refresh = () => {
+      const t = todayKey();
+      if (t !== today) today = t;
+    };
+    document.addEventListener('visibilitychange', refresh);
+    window.addEventListener('focus', refresh);
+    const id = setInterval(refresh, 60_000);
+    return () => {
+      document.removeEventListener('visibilitychange', refresh);
+      window.removeEventListener('focus', refresh);
+      clearInterval(id);
+    };
+  });
+
+  // Quando a data selecionada muda (ex.: ← → no teclado, clique em outro
+  // mês), o calendário acompanha. NÃO lemos visibleMonth aqui para evitar
+  // que o effect se re-dispare ao usar as setas de navegação do mês.
   $effect(() => {
     const sel = fromDateKey(app.selectedDate);
-    const vis = fromDateKey(app.visibleMonth);
-    if (sel.getMonth() !== vis.getMonth() || sel.getFullYear() !== vis.getFullYear()) {
-      const first = new Date(sel.getFullYear(), sel.getMonth(), 1);
-      app.visibleMonth = toDateKey(first);
-    }
+    const first = new Date(sel.getFullYear(), sel.getMonth(), 1);
+    app.visibleMonth = toDateKey(first);
   });
 
   let cells = $derived(monthMatrix(app.visibleMonth));
@@ -38,14 +53,6 @@
     app.visibleMonth = toDateKey(d);
   }
 
-  function goToday() {
-    const t = todayKey();
-    today = t;
-    app.selectedDate = t;
-    app.visibleMonth = t;
-    bus.emit('day:selected', { date: t });
-  }
-
   const weekdays = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
   const weekdaysFull = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
 </script>
@@ -54,7 +61,9 @@
   {#snippet actions()}
     <div class="nav-row">
       <button class="nav" aria-label="Mês anterior" onclick={() => shiftMonth(-1)}>‹</button>
-      <button class="nav today-btn" onclick={goToday} title="Ir para hoje">hoje</button>
+      {#if app.selectedDate === today}
+        <span class="today-indicator" aria-label="você está em hoje">hoje</span>
+      {/if}
       <button class="nav" aria-label="Próximo mês" onclick={() => shiftMonth(1)}>›</button>
     </div>
   {/snippet}
@@ -105,12 +114,14 @@
     transition: background 140ms ease, border-color 140ms ease;
   }
   .nav:hover { background: var(--bg-elev); border-color: var(--rule); }
-  .nav.today-btn {
-    width: auto;
-    padding: 0 10px;
+  .today-indicator {
+    font-family: var(--font-mono);
     font-size: 10px;
     text-transform: uppercase;
     letter-spacing: var(--tracking-uppercase);
+    color: var(--accent-deep);
+    padding: 0 10px;
+    user-select: none;
   }
 
   .grid {
@@ -182,7 +193,7 @@
 
   @media (max-width: 760px) {
     .nav { width: 32px; height: 32px; font-size: 16px; }
-    .nav.today-btn { width: auto; padding: 0 12px; font-size: 11px; height: 32px; }
+    .today-indicator { font-size: 11px; padding: 0 12px; }
     .dow { padding: 6px 0; font-size: 10px; }
     .cell { min-height: 38px; }
     .num { font-size: 14px; }
