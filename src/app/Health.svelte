@@ -12,7 +12,7 @@
   let { bus }: Props = $props();
 </script>
 
-<Panel title="Saúde" figure="hidratação, alimentação e exercícios">
+<Panel title="Saúde">
   <div class="stack">
     <Water {bus} />
     <Meals {bus} />

@@ -24,7 +24,7 @@
 </script>
 
 <div data-shortcut="lofi">
-<Panel title="Lo-Fi" figure="rádio para focar">
+<Panel title="Lo-Fi">
   {#if !playing}
     <button class="facade" onclick={() => (playing = true)} aria-label="Tocar rádio Lo-Fi — carrega do YouTube só agora">
       <span class="disc" aria-hidden="true">
@@ -38,7 +38,7 @@
       </span>
       <span class="cta">
         <strong>tocar live</strong>
-        <small>Carrega-se o Youtube somente ao clicar</small>
+        <small>Aperte play e mergulhe no foco</small>
       </span>
     </button>
   {:else}
