@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Panel from '$ui/Panel.svelte';
   import Button from '$ui/Button.svelte';
   import { rootStorage } from '$core/storage';
   import { app } from '$app/state.svelte';
@@ -93,8 +92,8 @@
   }
 </script>
 
-<div data-shortcut="water">
-<Panel title="Hidratação">
+<section class="sub" data-shortcut="water">
+  <h3 class="sub-head">Hidratação</h3>
   {#if !config}
     <div class="nudge">
       <p class="lead">
@@ -166,10 +165,18 @@
       </p>
     {/if}
   {/if}
-</Panel>
-</div>
+</section>
 
 <style>
+  .sub-head {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--fg-soft);
+    margin-bottom: var(--space-3);
+  }
+
   .nudge {
     display: flex;
     flex-direction: column;
@@ -232,10 +239,15 @@
 
   .schedule {
     width: 100%;
+    table-layout: fixed;
     border-collapse: collapse;
     font-family: var(--font-body);
     font-size: 13px;
   }
+  /* Larguras fixas iguais às da tabela de Alimentação — mantêm a coluna
+     OBJETIVO começando no mesmo x nas duas subseções. */
+  .schedule th:first-child { width: 30%; }
+  .schedule th:last-child { width: 28%; }
   .schedule th {
     text-align: left;
     padding: 6px 8px 6px 0;

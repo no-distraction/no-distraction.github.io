@@ -14,8 +14,11 @@ import todo from '$modules/todo';
 import notes from '$modules/notes';
 import pomodoro from '$modules/pomodoro';
 import water from '$modules/water';
+import meals from '$modules/meals';
+import exercise from '$modules/exercise';
+import lofi from '$modules/lofi';
 
-const MODULES: AppModule[] = [calendar, todo, notes, pomodoro, water];
+const MODULES: AppModule[] = [calendar, todo, notes, pomodoro, water, meals, exercise, lofi];
 
 export async function bootstrap(target: HTMLElement): Promise<void> {
   const bus: EventBus = createBus();

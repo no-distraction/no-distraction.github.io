@@ -4,7 +4,8 @@
   import Todo from '$modules/todo/Todo.svelte';
   import Notes from '$modules/notes/Notes.svelte';
   import Pomodoro from '$modules/pomodoro/Pomodoro.svelte';
-  import Water from '$modules/water/Water.svelte';
+  import Health from './Health.svelte';
+  import LoFi from '$modules/lofi/LoFi.svelte';
   import Settings from '$modules/settings/Settings.svelte';
   import Modal from '$ui/Modal.svelte';
   import type { EventBus } from '$core/types';
@@ -46,7 +47,7 @@
     return () => off();
   });
 
-  let activeMobileTab = $state<'calendar' | 'tasks' | 'water' | 'notes' | 'pomodoro'>('tasks');
+  let activeMobileTab = $state<'calendar' | 'tasks' | 'health' | 'notes' | 'pomodoro' | 'lofi'>('tasks');
 
   let isToday = $derived(app.selectedDate === todayKey());
 
@@ -96,10 +97,11 @@
 
 <nav class="tabs" aria-label="Painéis (mobile)">
   <button class:active={activeMobileTab === 'tasks'} onclick={() => (activeMobileTab = 'tasks')}>Tarefas</button>
-  <button class:active={activeMobileTab === 'water'} onclick={() => (activeMobileTab = 'water')}>Água</button>
+  <button class:active={activeMobileTab === 'health'} onclick={() => (activeMobileTab = 'health')}>Saúde</button>
   <button class:active={activeMobileTab === 'notes'} onclick={() => (activeMobileTab = 'notes')}>Notas</button>
   <button class:active={activeMobileTab === 'pomodoro'} onclick={() => (activeMobileTab = 'pomodoro')}>Pomodoro</button>
   <button class:active={activeMobileTab === 'calendar'} onclick={() => (activeMobileTab = 'calendar')}>Agenda</button>
+  <button class:active={activeMobileTab === 'lofi'} onclick={() => (activeMobileTab = 'lofi')}>Lo-Fi</button>
 </nav>
 
 <main class="layout" use:dayChange={app.selectedDate}>
@@ -107,11 +109,14 @@
     <div class="ws-cell tall" class:hidden-mobile={activeMobileTab !== 'tasks'}>
       <Todo {bus} />
     </div>
-    <div class="ws-cell" class:hidden-mobile={activeMobileTab !== 'water'}>
-      <Water {bus} />
+    <div class="ws-cell" class:hidden-mobile={activeMobileTab !== 'health'}>
+      <Health {bus} />
     </div>
     <div class="ws-cell tall" class:hidden-mobile={activeMobileTab !== 'notes'}>
       <Notes {bus} />
+    </div>
+    <div class="ws-cell" class:hidden-mobile={activeMobileTab !== 'lofi'}>
+      <LoFi />
     </div>
   </section>
 

@@ -1,7 +1,7 @@
 # no-distraction app
 
-Calendário, tarefas, notas, pomodoro e hidratação em uma única tela —
-tudo offline, tudo no seu navegador.
+Calendário, tarefas, notas, pomodoro, hidratação e alimentação em uma
+única tela — tudo offline, tudo no seu navegador.
 
 > Nada é enviado para nenhum servidor. Não há contas, nuvem, telemetria
 > nem terceiros. Para mudar de máquina, exporte o seu `.json`.
@@ -32,7 +32,10 @@ src/
 │   ├── todo/         # tarefas por dia + filtros (dia/pendentes/feitas)
 │   ├── notes/        # textarea com autosave, múltiplas abas por dia
 │   ├── pomodoro/     # cronômetro por timestamp + persistência
-│   ├── water/        # checklist de hidratação calculado pelo peso
+│   ├── water/        # hidratação (subseção da caixinha "Saúde")
+│   ├── meals/        # refeições: café, almoço, janta (subseção de "Saúde")
+│   ├── exercise/     # exercício do dia: fez ou não (subseção de "Saúde")
+│   ├── lofi/         # rádio Lo-Fi opt-in (embed YouTube sob demanda)
 │   └── settings/     # tema, durações do pomodoro, peso, backup
 └── ui/               # Button, Panel, Modal, Toggle
 ```
@@ -85,6 +88,24 @@ restaurar em outra máquina, importe o mesmo arquivo. O `schemaVersion`
 - **Nada** sai do seu dispositivo. Não há nenhum `fetch` em runtime.
 - Fontes são embaladas no bundle via `@fontsource`.
 - O service worker apenas armazena os assets locais para uso offline.
+
+### A exceção: o rádio Lo-Fi
+
+A caixinha **Lo-Fi** é a única parte que pode contatar um terceiro — e só
+se você quiser:
+
+- Enquanto você **não clica em "tocar live"**, ela é apenas um botão local:
+  **zero rede**, nenhum cookie, nenhum contato com o YouTube (padrão
+  *facade*). A promessa acima continua valendo por inteiro.
+- **Ao clicar**, e só então, um `<iframe>` do `youtube-nocookie.com` é
+  injetado para tocar a live. A partir daí o player vem do Google, que
+  recebe ao menos o seu IP. É um *opt-in* explícito.
+- Botão **"parar"** remove o iframe e corta a conexão.
+- Por isso o CSP libera **somente** `frame-src https://www.youtube-nocookie.com`;
+  nenhuma outra origem externa é permitida.
+
+Se isso for inaceitável para o seu uso, basta não clicar — ou remover o
+diretório `src/modules/lofi/` (modularidade LEGO) e a regra de `frame-src`.
 
 ## Licença
 

@@ -18,6 +18,9 @@ export type EventMap = {
   'water:check-toggled': { date: DateKey; index: number; checked: boolean };
   'water:goal-met': { date: DateKey; ml: number };
   'water:config-changed': Record<string, never>;
+  'meals:check-toggled': { date: DateKey; meal: string; checked: boolean };
+  'meals:all-done': { date: DateKey };
+  'exercise:toggled': { date: DateKey; done: boolean };
   'theme:changed': { theme: Theme };
   'data:imported': Record<string, never>;
   'data:cleared': Record<string, never>;
