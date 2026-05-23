@@ -11,6 +11,26 @@
   import { app } from './state.svelte';
   import { formatLong, todayKey } from '$core/date';
   import type { ThemeController } from './theme';
+  import type { Action } from 'svelte/action';
+
+  // Feedback de troca de dia: a área de conteúdo inteira faz um leve
+  // "assentar" (fade + sobe) sempre que a data muda, sinalizando que os
+  // dados exibidos passaram a ser os da nova data. Não dispara na carga.
+  const dayChange: Action<HTMLElement, string> = (node) => {
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+    return {
+      update() {
+        if (reduce) return;
+        node.animate(
+          [
+            { opacity: 0.35, transform: 'translateY(6px)' },
+            { opacity: 1, transform: 'translateY(0)' },
+          ],
+          { duration: 380, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' },
+        );
+      },
+    };
+  };
 
   type Props = {
     bus: EventBus;
@@ -82,7 +102,7 @@
   <button class:active={activeMobileTab === 'calendar'} onclick={() => (activeMobileTab = 'calendar')}>Agenda</button>
 </nav>
 
-<main class="layout">
+<main class="layout" use:dayChange={app.selectedDate}>
   <section class="workspace" aria-label="Workspace">
     <div class="ws-cell tall" class:hidden-mobile={activeMobileTab !== 'tasks'}>
       <Todo {bus} />
@@ -104,6 +124,11 @@
     </div>
   </aside>
 </main>
+
+<footer class="site-footer">
+  <a href="https://www.linkedin.com/in/brennocm" target="_blank" rel="noopener noreferrer">brennocm</a>
+  <span class="sep">|</span> © 20∞
+</footer>
 
 {#if app.toast}
   <div class="toast" role="status" class:danger={app.toast.tone === 'danger'} aria-live="polite">
@@ -254,6 +279,26 @@
     height: 100%;
   }
 
+  .site-footer {
+    text-align: center;
+    padding: var(--space-5) var(--space-7);
+    padding-bottom: calc(var(--space-5) + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: var(--tracking-wide);
+    color: var(--fg-faint);
+    flex-shrink: 0;
+  }
+  .site-footer a {
+    color: var(--fg-soft);
+    text-decoration: none;
+    border-bottom: 1px solid var(--rule);
+    transition: color 140ms ease, border-color 140ms ease;
+  }
+  .site-footer a:hover { color: var(--accent-deep); border-bottom-color: var(--accent); }
+  .site-footer .sep { margin: 0 var(--space-2); color: var(--fg-ghost); }
+
   .toast {
     position: fixed;
     bottom: var(--space-6);
@@ -380,5 +425,6 @@
     .workspace { gap: var(--space-4); }
     .ws-cell.tall { min-height: 400px; }
     .hidden-mobile { display: none; }
+    .site-footer { display: none; }
   }
 </style>

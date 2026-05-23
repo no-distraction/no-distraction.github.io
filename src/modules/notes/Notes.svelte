@@ -94,8 +94,6 @@
   }
 
   let active = $derived(pages.find((p) => p.id === activeId) ?? null);
-  let words = $derived(active?.content.trim() ? active.content.trim().split(/\s+/).length : 0);
-  let count = $derived(active?.content.length ?? 0);
 
   let savedLabel = $state('');
   $effect(() => {
@@ -167,8 +165,6 @@
 
   <footer class="meta">
     <span>{pages.length} {pages.length === 1 ? 'nota' : 'notas'}</span>
-    <span class="dot">·</span>
-    <span>{words} palavras · {count} caracteres</span>
     <span class="hint">⌨ N para focar · duplo clique no título para renomear</span>
   </footer>
 </Panel>
@@ -306,7 +302,6 @@
     font-size: 11px;
     flex-wrap: wrap;
   }
-  .meta .dot { color: var(--fg-ghost); }
   .meta .hint { margin-left: auto; }
 
   @media (max-width: 720px) {

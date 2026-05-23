@@ -19,6 +19,10 @@
   let editing = $state<string | null>(null);
   let editText = $state('');
 
+  // Reordenação manual via arrastar (drag and drop).
+  let dragId = $state<string | null>(null);
+  let overId = $state<string | null>(null);
+
   $effect(() => {
     loadDay(app.selectedDate);
   });
@@ -140,6 +144,49 @@
     editing = null;
   }
 
+  function onDragStart(e: DragEvent, t: Task) {
+    if (editing === t.id) return;
+    dragId = t.id;
+    if (e.dataTransfer) {
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', t.id);
+    }
+  }
+  function onDragOver(e: DragEvent, t: Task) {
+    if (dragId === null) return;
+    e.preventDefault();
+    if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+    overId = t.id;
+  }
+  async function onDrop(e: DragEvent, target: Task) {
+    e.preventDefault();
+    const from = dragId;
+    resetDrag();
+    if (from === null || from === target.id) return;
+    const fromIdx = dayTasks.findIndex((x) => x.id === from);
+    const toIdx = dayTasks.findIndex((x) => x.id === target.id);
+    if (fromIdx === -1 || toIdx === -1) return;
+    const next = [...dayTasks];
+    const [moved] = next.splice(fromIdx, 1);
+    next.splice(toIdx, 0, moved);
+    await commitDay(app.selectedDate, next);
+  }
+  function resetDrag() {
+    dragId = null;
+    overId = null;
+  }
+
+  // Reordenação por botões (mobile, onde o arrastar nativo não funciona no toque).
+  async function move(t: Task, delta: number) {
+    const idx = dayTasks.findIndex((x) => x.id === t.id);
+    const target = idx + delta;
+    if (idx === -1 || target < 0 || target >= dayTasks.length) return;
+    const next = [...dayTasks];
+    const [moved] = next.splice(idx, 1);
+    next.splice(target, 0, moved);
+    await commitDay(app.selectedDate, next);
+  }
+
   async function setView(v: View) {
     view = v;
     if (v === 'pending') await loadPending();
@@ -169,8 +216,33 @@
     </form>
 
     <ul class="list">
-      {#each dayTasks as t (t.id)}
-        <li class="row" class:done={t.done}>
+      {#each dayTasks as t, i (t.id)}
+        <li
+          class="row"
+          class:done={t.done}
+          class:dragging={dragId === t.id}
+          class:drag-over={overId === t.id && dragId !== t.id}
+          draggable={editing !== t.id}
+          ondragstart={(e) => onDragStart(e, t)}
+          ondragover={(e) => onDragOver(e, t)}
+          ondrop={(e) => onDrop(e, t)}
+          ondragend={resetDrag}
+        >
+          <span class="grip" aria-hidden="true" title="arraste para reordenar">⠿</span>
+          <div class="move">
+            <button
+              class="move-btn"
+              aria-label="Mover para cima"
+              disabled={i === 0}
+              onclick={() => move(t, -1)}
+            >↑</button>
+            <button
+              class="move-btn"
+              aria-label="Mover para baixo"
+              disabled={i === dayTasks.length - 1}
+              onclick={() => move(t, 1)}
+            >↓</button>
+          </div>
           <button
             class="check"
             role="checkbox"
@@ -196,6 +268,7 @@
               class="text"
               role="button"
               tabindex="0"
+              title="duplo clique para editar"
               ondblclick={() => startEdit(t)}
               onkeydown={(e) => e.key === 'Enter' && startEdit(t)}
             >{t.text}</span>
@@ -292,13 +365,54 @@
   }
   .row {
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto auto 1fr auto;
     align-items: center;
     gap: var(--space-3);
     padding: 8px 0;
     border-bottom: 1px dotted var(--rule-soft);
   }
   .row:last-child { border-bottom: none; }
+  .row.dragging { opacity: 0.4; }
+  .row.drag-over {
+    box-shadow: inset 0 2px 0 var(--accent);
+  }
+
+  .grip {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1;
+    color: var(--fg-ghost);
+    cursor: grab;
+    opacity: 0;
+    transition: opacity 140ms ease, color 140ms ease;
+    user-select: none;
+  }
+  .row:hover .grip { opacity: 1; }
+  .grip:hover { color: var(--fg-soft); }
+  .grip:active { cursor: grabbing; }
+
+  /* Botões de reordenar — só no mobile (ver media query) */
+  .move {
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .move-btn {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1;
+    color: var(--fg-faint);
+    width: 30px;
+    height: 22px;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 140ms ease, color 140ms ease;
+  }
+  .move-btn:not(:disabled):active { border-color: var(--accent); color: var(--fg); }
+  .move-btn:disabled { opacity: 0.25; }
   .row.done .text { color: var(--fg-ghost); text-decoration: line-through; text-decoration-color: var(--fg-ghost); }
   .row .text {
     font-family: var(--font-body);
@@ -331,14 +445,20 @@
 
   .trash {
     font-family: var(--font-display);
-    font-size: 18px;
+    font-size: 22px;
     line-height: 1;
     color: var(--fg-ghost);
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
     opacity: 0;
-    transition: opacity 140ms ease, color 140ms ease;
+    transition: opacity 140ms ease, color 140ms ease, background 140ms ease;
   }
   .row:hover .trash { opacity: 1; }
-  .trash:hover { color: var(--danger); }
+  .trash:hover { color: var(--danger); background: color-mix(in oklab, var(--danger) 10%, transparent); }
 
   .edit {
     font-family: var(--font-body);
@@ -362,7 +482,9 @@
     .seg button { padding: 8px 12px; font-size: 11px; min-height: 36px; }
     .check { width: 24px; height: 24px; }
     .add-btn { width: 36px; height: 36px; font-size: 24px; }
-    .trash { opacity: 1; font-size: 22px; padding: 4px; }
+    .trash { opacity: 1; font-size: 24px; width: 36px; height: 36px; }
+    .grip { display: none; }
+    .move { display: flex; }
     .row { padding: 10px 0; }
     .row .text { font-size: 16px; }
     .new input { font-size: 16px; padding: 8px 2px; }

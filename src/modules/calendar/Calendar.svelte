@@ -38,6 +38,12 @@
   let cells = $derived(monthMatrix(app.visibleMonth));
   let monthIndex = $derived(fromDateKey(app.visibleMonth).getMonth());
 
+  // Dispara um pulso visual na célula recém-selecionada — feedback de que os
+  // registros exibidos passaram a ser os daquela data. Limpa logo após para
+  // não re-animar ao navegar entre meses.
+  let pulsing = $state<DateKey | null>(null);
+  let pulseTimer: ReturnType<typeof setTimeout> | null = null;
+
   function isCurrentMonth(key: DateKey) {
     return fromDateKey(key).getMonth() === monthIndex;
   }
@@ -45,6 +51,9 @@
   function select(date: DateKey) {
     app.selectedDate = date;
     bus.emit('day:selected', { date });
+    pulsing = date;
+    if (pulseTimer) clearTimeout(pulseTimer);
+    pulseTimer = setTimeout(() => (pulsing = null), 420);
   }
 
   function shiftMonth(delta: number) {
@@ -83,6 +92,7 @@
         class:dim
         class:today={isToday}
         class:selected={isSel}
+        class:pulse={cell === pulsing}
         role="gridcell"
         aria-selected={isSel}
         aria-label={`${day}, ${weekdaysFull[fromDateKey(cell).getDay()]}`}
@@ -175,6 +185,23 @@
     outline: 2px solid var(--accent);
     outline-offset: -2px;
     z-index: 1;
+  }
+  .cell.pulse {
+    animation: cell-select 420ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .cell.pulse .num {
+    animation: num-select 420ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  @keyframes cell-select {
+    0% { background: color-mix(in oklab, var(--accent) 42%, var(--bg)); }
+    100% { background: var(--bg); }
+  }
+  @keyframes num-select {
+    0%, 100% { transform: scale(1); }
+    40% { transform: scale(1.28); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cell.pulse, .cell.pulse .num { animation: none; }
   }
 
   .dots {
