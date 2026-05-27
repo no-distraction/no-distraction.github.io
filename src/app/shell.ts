@@ -7,6 +7,7 @@ import { ThemeController } from './theme';
 import { installShortcuts } from './shortcuts';
 import { bootstrapIndicators } from './indicators';
 import { app } from './state.svelte';
+import { initInstall } from './install.svelte';
 import App from './App.svelte';
 
 import calendar from '$modules/calendar';
@@ -22,6 +23,10 @@ const MODULES: AppModule[] = [calendar, todo, notes, pomodoro, water, meals, exe
 
 export async function bootstrap(target: HTMLElement): Promise<void> {
   const bus: EventBus = createBus();
+
+  // Registra os listeners de instalação cedo — o `beforeinstallprompt` pode
+  // disparar antes de as migrações abaixo terminarem.
+  initInstall();
 
   await runMigrations(rootStorage);
 

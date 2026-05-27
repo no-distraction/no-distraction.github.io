@@ -8,6 +8,7 @@
   import LoFi from '$modules/lofi/LoFi.svelte';
   import Settings from '$modules/settings/Settings.svelte';
   import Modal from '$ui/Modal.svelte';
+  import InstallButton from './InstallButton.svelte';
   import type { EventBus } from '$core/types';
   import { app } from './state.svelte';
   import { formatLong, todayKey } from '$core/date';
@@ -64,6 +65,8 @@
       {#if isToday}<em>hoje,</em>{/if}
       {formatLong(app.selectedDate)}
     </button>
+
+    <InstallButton />
 
     <button class="icon-btn" aria-label="Atalhos" title="Atalhos" onclick={() => (app.showShortcuts = true)}>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">

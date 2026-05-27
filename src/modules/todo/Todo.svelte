@@ -13,11 +13,13 @@
   type View = 'day' | 'pending' | 'done';
   let view = $state<View>('day');
   let dayTasks = $state<Task[]>([]);
-  let pending = $state<Array<{ date: DateKey; task: Task }>>([]);
-  let completed = $state<Array<{ date: DateKey; task: Task }>>([]);
   let draft = $state('');
   let editing = $state<string | null>(null);
   let editText = $state('');
+
+  // Pendentes e feitas são recortes do dia selecionado — nunca somam outros dias.
+  let pendingDay = $derived(dayTasks.filter((t) => !t.done));
+  let completedDay = $derived(dayTasks.filter((t) => t.done));
 
   // Reordenação manual via arrastar (drag and drop).
   let dragId = $state<string | null>(null);
@@ -27,30 +29,11 @@
     loadDay(app.selectedDate);
   });
 
-  // Recarrega aba ativa quando a aba muda ou quando algum evento de tarefa dispara.
   $effect(() => {
-    if (view === 'pending') void loadPending();
-    if (view === 'done') void loadCompleted();
-  });
-
-  $effect(() => {
-    const refresh = () => {
-      if (view === 'pending') void loadPending();
-      if (view === 'done') void loadCompleted();
-    };
     const offs = [
-      bus.on('task:created', refresh),
-      bus.on('task:completed', refresh),
-      bus.on('task:uncompleted', refresh),
-      bus.on('task:deleted', refresh),
-      bus.on('data:imported', () => {
-        loadDay(app.selectedDate);
-        refresh();
-      }),
+      bus.on('data:imported', () => loadDay(app.selectedDate)),
       bus.on('data:cleared', () => {
         dayTasks = [];
-        pending = [];
-        completed = [];
       }),
     ];
     return () => offs.forEach((o) => o());
@@ -62,22 +45,6 @@
     } catch (err) {
       console.error('[todo] loadDay failed', err);
       dayTasks = [];
-    }
-  }
-  async function loadPending() {
-    try {
-      pending = await store.allPending();
-    } catch (err) {
-      console.error('[todo] loadPending failed', err);
-      pending = [];
-    }
-  }
-  async function loadCompleted() {
-    try {
-      completed = await store.allCompleted();
-    } catch (err) {
-      console.error('[todo] loadCompleted failed', err);
-      completed = [];
     }
   }
 
@@ -187,10 +154,8 @@
     await commitDay(app.selectedDate, next);
   }
 
-  async function setView(v: View) {
+  function setView(v: View) {
     view = v;
-    if (v === 'pending') await loadPending();
-    if (v === 'done') await loadCompleted();
   }
 </script>
 
@@ -285,9 +250,9 @@
     </ul>
   {:else if view === 'pending'}
     <ul class="list">
-      {#each pending as it (it.task.id)}
+      {#each pendingDay as t (t.id)}
         <li class="row pending-only">
-          <span class="text">{it.task.text}</span>
+          <span class="text">{t.text}</span>
         </li>
       {:else}
         <li class="empty"><p>Nada pendente.</p><small>Que sorte.</small></li>
@@ -295,9 +260,9 @@
     </ul>
   {:else}
     <ul class="list">
-      {#each completed as it (it.task.id)}
+      {#each completedDay as t (t.id)}
         <li class="row pending-only done">
-          <span class="text">{it.task.text}</span>
+          <span class="text">{t.text}</span>
         </li>
       {:else}
         <li class="empty"><p>Ainda nada concluído.</p></li>

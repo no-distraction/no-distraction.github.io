@@ -40,47 +40,23 @@ describe('TodoStore', () => {
     store = new TodoStore(storage);
   });
 
-  it('allPending returns ALL not-done tasks across days', async () => {
-    await store.write('2026-05-20', [
-      task('a', 'A'),
-      task('b', 'B'),
-      task('c', 'C'),
-      task('d', 'D'),
-      task('e', 'E'),
-      task('f', 'F'),
-      task('g', 'G'),
-    ]);
-    const pending = await store.allPending();
-    expect(pending.length).toBe(7);
-    expect(pending.map((p) => p.task.id).sort()).toEqual(['a', 'b', 'c', 'd', 'e', 'f', 'g']);
+  it('listByDay returns only the tasks of that day', async () => {
+    await store.write('2026-05-20', [task('a', 'A'), task('b', 'B')]);
+    await store.write('2026-05-21', [task('c', 'C')]);
+    const day = await store.listByDay('2026-05-20');
+    expect(day.map((t) => t.id)).toEqual(['a', 'b']);
   });
 
-  it('allPending filters out done tasks', async () => {
-    await store.write('2026-05-20', [
-      task('a', 'A', false),
-      task('b', 'B', true),
-      task('c', 'C', false),
-    ]);
-    const pending = await store.allPending();
-    expect(pending.map((p) => p.task.id).sort()).toEqual(['a', 'c']);
-  });
-
-  it('allCompleted returns only done tasks', async () => {
-    await store.write('2026-05-20', [
-      task('a', 'A', false),
-      task('b', 'B', true),
-      task('c', 'C', true),
-    ]);
-    const completed = await store.allCompleted();
-    expect(completed.map((p) => p.task.id).sort()).toEqual(['b', 'c']);
-  });
-
-  it('allPending aggregates across days', async () => {
+  it('listByDay never bleeds tasks from neighbouring days', async () => {
     await store.write('2026-05-20', [task('a', 'A')]);
     await store.write('2026-05-21', [task('b', 'B'), task('c', 'C')]);
     await store.write('2026-05-22', [task('d', 'D')]);
-    const pending = await store.allPending();
-    expect(pending.length).toBe(4);
+    expect(await store.listByDay('2026-05-21')).toHaveLength(2);
+  });
+
+  it('listByDay returns empty for a day with no tasks', async () => {
+    await store.write('2026-05-20', [task('a', 'A')]);
+    expect(await store.listByDay('2026-05-19')).toEqual([]);
   });
 
   it('serializes concurrent writes without losing data', async () => {

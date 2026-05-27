@@ -38,31 +38,4 @@ export class TodoStore {
     this.writeQueue = next;
     return next;
   }
-
-  async allPending(): Promise<Array<{ date: DateKey; task: Task }>> {
-    const out: Array<{ date: DateKey; task: Task }> = [];
-    await this.storage.iterate<Task[]>((list, key) => {
-      if (!key.startsWith('tasks:')) return;
-      if (!Array.isArray(list)) return;
-      const date = key.replace(/^tasks:/, '');
-      for (const t of list) if (t && t.done !== true) out.push({ date, task: t });
-    });
-    return out.sort((a, b) => (a.date < b.date ? -1 : 1));
-  }
-
-  async allCompleted(): Promise<Array<{ date: DateKey; task: Task }>> {
-    const out: Array<{ date: DateKey; task: Task }> = [];
-    await this.storage.iterate<Task[]>((list, key) => {
-      if (!key.startsWith('tasks:')) return;
-      if (!Array.isArray(list)) return;
-      const date = key.replace(/^tasks:/, '');
-      for (const t of list) if (t && t.done === true) out.push({ date, task: t });
-    });
-    return out.sort((a, b) => {
-      const ta = a.task.completedAt ?? 0;
-      const tb = b.task.completedAt ?? 0;
-      if (ta !== tb) return tb - ta;
-      return a.date > b.date ? -1 : 1;
-    });
-  }
 }
