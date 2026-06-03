@@ -6,7 +6,8 @@
   let iosOpen = $state(false);
 
   // Mostra só quando há algo a fazer: Android com prompt pronto, ou iOS não instalado.
-  let visible = $derived(!install.installed && (install.canPrompt || install.isIOS));
+  // Desktop fica fora — a instalação é pensada como atalho de mobile.
+  let visible = $derived(install.isMobile && !install.installed && (install.canPrompt || install.isIOS));
 
   async function onClick() {
     if (install.isIOS) {

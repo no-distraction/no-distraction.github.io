@@ -23,6 +23,8 @@ export const install = $state({
   isIOS: false,
   /** Já roda instalado (standalone) — nada a oferecer. */
   installed: false,
+  /** Apenas mobile mostra o botão de instalar (desktop fica oculto). */
+  isMobile: false,
 });
 
 let deferred: BeforeInstallPromptEvent | null = null;
@@ -43,6 +45,12 @@ function detectIOS(): boolean {
   return iDevice || iPadOS;
 }
 
+function detectMobile(): boolean {
+  const ua = navigator.userAgent;
+  // UA "Mobi"/"Android" cobre Android/Chromium; iOS já entra pelo detectIOS().
+  return /Mobi|Android/i.test(ua) || detectIOS();
+}
+
 export function initInstall(): void {
   if (typeof window === 'undefined') return;
 
@@ -52,6 +60,7 @@ export function initInstall(): void {
   }
 
   install.isIOS = detectIOS();
+  install.isMobile = detectMobile();
 
   window.addEventListener('beforeinstallprompt', (e) => {
     // Impede o mini-infobar — nós controlamos o momento via botão.
