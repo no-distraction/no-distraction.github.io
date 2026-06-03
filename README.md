@@ -18,15 +18,18 @@ de hidratação calculado pelo peso.
 - **Svelte 5** (runes) + **Vite** — bundle minúsculo, sem virtual DOM.
 - **TypeScript** estrito.
 - **IndexedDB** via **localForage** com namespaces por módulo.
-- **PWA** (vite-plugin-pwa + Workbox) — instalável, funciona offline.
-- Fontes auto-hospedadas: **Geist** + **Geist Mono** (via `@fontsource`).
+- **PWA** (vite-plugin-pwa + Workbox) — instalável no celular e no
+  desktop, funciona offline e abre em tela cheia.
+- Fontes auto-hospedadas: **Geist Variable** + **Geist Mono Variable**
+  (via `@fontsource-variable`).
 
 ## Estrutura
 
 ```
 src/
-├── app/              # shell, tema, atalhos, indicadores agregados
-├── core/             # bus, storage, datas, migrações
+├── app/              # shell, tema, atalhos, indicadores, caixa "Saúde",
+│                     #   botão de instalação PWA
+├── core/             # bus, storage, datas, migrações, debounce, tipos
 ├── modules/
 │   ├── calendar/     # grade gregoriana mensal
 │   ├── todo/         # tarefas por dia + filtros (dia/pendentes/feitas)
@@ -50,9 +53,12 @@ erros — modularidade LEGO.
 ```bash
 npm install
 npm run dev        # localhost:5173
-npm test           # vitest
-npm run build      # gera dist/
+npm test           # vitest (npm run test:watch para modo watch)
+npm run check      # svelte-check (tipos + template)
+npm run build      # roda svelte-check e gera dist/
 npm run preview    # serve a build localmente
+npm run lint       # eslint
+npm run format     # prettier --write
 ```
 
 ## Deploy no GitHub Pages
@@ -86,8 +92,13 @@ restaurar em outra máquina, importe o mesmo arquivo. O `schemaVersion`
 ## Privacidade
 
 - **Nada** sai do seu dispositivo. Não há nenhum `fetch` em runtime.
-- Fontes são embaladas no bundle via `@fontsource`.
+- Fontes são embaladas no bundle via `@fontsource-variable`.
 - O service worker apenas armazena os assets locais para uso offline.
+- Endurecimento por padrão via `<meta>` em `index.html`: CSP rígido
+  (`default-src 'self'`, `connect-src 'self'`, `object-src 'none'`,
+  `form-action 'none'`), `referrer: no-referrer`, `nosniff` e
+  `Permissions-Policy` bloqueando câmera, microfone, geolocalização e
+  *interest-cohort* (FLoC).
 
 ### A exceção: o rádio Lo-Fi
 
